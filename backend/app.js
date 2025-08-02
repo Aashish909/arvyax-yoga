@@ -22,10 +22,10 @@ app.use(express.static(path.join(__dirname, "public")));
 // Configure CORS to allow requests from frontend
 app.use(
   cors({
-    origin: `https://arvyax-yoga-ygi2.vercel.app`,
-    // origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 

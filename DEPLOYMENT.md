@@ -74,9 +74,11 @@ Follow these steps:
    app.use(cors({
      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     allowedHeaders: ['Content-Type', 'Authorization']
+     allowedHeaders: ['Content-Type', 'Authorization'],
+     credentials: true
    }));
    ```
+   - The `credentials: true` option is important for allowing cookies to be sent in cross-origin requests
    - The origin in the CORS configuration should match your frontend URL
 
 3. **Update Frontend Environment**:
@@ -91,8 +93,13 @@ Follow these steps:
    - In Vercel, you can trigger a redeployment from the Deployments tab
 
 5. **Check Network Requests**:
-   - Use browser developer tools to inspect network requests and verify the correct headers are being sent
-   - Look for the `Access-Control-Allow-Origin` header in the response
+   - Use browser developer tools (F12 or right-click > Inspect) to inspect network requests
+   - Look for OPTIONS preflight requests that might be failing
+   - Verify the correct headers are being sent and received:
+     - Request headers should include `Origin`
+     - Response headers should include `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, and `Access-Control-Allow-Headers`
+   - If you see a failed OPTIONS request, it indicates a CORS preflight issue
+   - Check the response status code - a 204 No Content is expected for successful preflight requests
 
 ### Other Common Issues
 
@@ -100,6 +107,20 @@ Follow these steps:
 - **Environment Variables**: Verify that all environment variables are correctly set in both frontend and backend deployments
 - **MongoDB Connection**: Ensure your MongoDB Atlas IP whitelist allows connections from Vercel's servers (set to allow access from anywhere `0.0.0.0/0` for simplicity during development)
 - **API Endpoints**: Make sure all API endpoints in your frontend code use the environment variable for the backend URL, not hardcoded URLs
+- **Hardcoded URLs**: Check for hardcoded URLs in both frontend and backend code. In particular, make sure the CORS configuration in `app.js` is using the environment variable and not a hardcoded URL:
+  ```javascript
+  // INCORRECT - Hardcoded URL
+  app.use(cors({
+    origin: 'https://your-frontend.vercel.app',
+    // ...
+  }));
+  
+  // CORRECT - Using environment variable
+  app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    // ...
+  }));
+  ```
 - **Browser Cache**: Clear your browser cache if you're still experiencing issues after making changes
 - **Vercel Build Settings**: Check that your build settings in Vercel are correctly configured for both frontend and backend
 - **Node.js Version**: Ensure you're using a compatible Node.js version in your Vercel deployment settings
