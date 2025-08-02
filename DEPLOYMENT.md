@@ -57,7 +57,7 @@
 
 If you encounter CORS errors like:
 ```
-Access to XMLHttpRequest has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Access to XMLHttpRequest at 'https://your-backend.vercel.app/auth/login' from origin 'https://your-frontend.vercel.app' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
 
 Follow these steps:
@@ -66,19 +66,40 @@ Follow these steps:
    - Make sure `FRONTEND_URL` is correctly set in your backend environment variables on Vercel
    - The value should exactly match your frontend URL (e.g., `https://your-frontend.vercel.app`)
    - No trailing slashes should be included
+   - Example: If your frontend is deployed at `https://arvyax-yoga-ygi2.vercel.app`, then set `FRONTEND_URL=https://arvyax-yoga-ygi2.vercel.app`
 
 2. **Check Backend CORS Configuration**:
-   - Ensure the backend's CORS configuration is correctly set up to allow requests from your frontend domain
+   - Ensure the backend's CORS configuration in `app.js` is correctly set up to allow requests from your frontend domain:
+   ```javascript
+   app.use(cors({
+     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allowedHeaders: ['Content-Type', 'Authorization']
+   }));
+   ```
    - The origin in the CORS configuration should match your frontend URL
 
-3. **Redeploy Backend**:
-   - After making changes to environment variables, redeploy your backend to apply the changes
+3. **Update Frontend Environment**:
+   - Make sure your frontend's `.env` file has the correct backend URL:
+   ```
+   REACT_APP_BACKEND_URL=https://your-backend.vercel.app
+   ```
+   - Example: If your backend is deployed at `https://arvyax-yoga.vercel.app`, then set `REACT_APP_BACKEND_URL=https://arvyax-yoga.vercel.app`
 
-4. **Check Network Requests**:
+4. **Redeploy Backend**:
+   - After making changes to environment variables, redeploy your backend to apply the changes
+   - In Vercel, you can trigger a redeployment from the Deployments tab
+
+5. **Check Network Requests**:
    - Use browser developer tools to inspect network requests and verify the correct headers are being sent
+   - Look for the `Access-Control-Allow-Origin` header in the response
 
 ### Other Common Issues
 
-- Check the Vercel deployment logs for any errors
-- Verify that all environment variables are correctly set
-- Ensure your MongoDB Atlas IP whitelist allows connections from Vercel's servers
+- **Deployment Logs**: Check the Vercel deployment logs for any errors or warnings
+- **Environment Variables**: Verify that all environment variables are correctly set in both frontend and backend deployments
+- **MongoDB Connection**: Ensure your MongoDB Atlas IP whitelist allows connections from Vercel's servers (set to allow access from anywhere `0.0.0.0/0` for simplicity during development)
+- **API Endpoints**: Make sure all API endpoints in your frontend code use the environment variable for the backend URL, not hardcoded URLs
+- **Browser Cache**: Clear your browser cache if you're still experiencing issues after making changes
+- **Vercel Build Settings**: Check that your build settings in Vercel are correctly configured for both frontend and backend
+- **Node.js Version**: Ensure you're using a compatible Node.js version in your Vercel deployment settings
