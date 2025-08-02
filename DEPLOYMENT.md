@@ -24,6 +24,7 @@
    - Add the following environment variables:
      - `MONGODB_URI`: Your MongoDB Atlas connection string
      - `JWT_SECRET`: Your JWT secret key
+     - `FRONTEND_URL`: Your frontend application URL (e.g., https://your-frontend.vercel.app)
    - Click "Deploy"
    - Once deployed, note the URL of your backend (e.g., `https://your-backend.vercel.app`)
 
@@ -52,6 +53,32 @@
 
 ## Troubleshooting
 
-- If you encounter CORS issues, make sure your backend is properly configured to accept requests from your frontend domain
+### CORS Issues
+
+If you encounter CORS errors like:
+```
+Access to XMLHttpRequest has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+```
+
+Follow these steps:
+
+1. **Verify Environment Variables**:
+   - Make sure `FRONTEND_URL` is correctly set in your backend environment variables on Vercel
+   - The value should exactly match your frontend URL (e.g., `https://your-frontend.vercel.app`)
+   - No trailing slashes should be included
+
+2. **Check Backend CORS Configuration**:
+   - Ensure the backend's CORS configuration is correctly set up to allow requests from your frontend domain
+   - The origin in the CORS configuration should match your frontend URL
+
+3. **Redeploy Backend**:
+   - After making changes to environment variables, redeploy your backend to apply the changes
+
+4. **Check Network Requests**:
+   - Use browser developer tools to inspect network requests and verify the correct headers are being sent
+
+### Other Common Issues
+
 - Check the Vercel deployment logs for any errors
 - Verify that all environment variables are correctly set
+- Ensure your MongoDB Atlas IP whitelist allows connections from Vercel's servers
